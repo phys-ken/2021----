@@ -1,4 +1,4 @@
-input_mov_path = "rakka.mp4"
+input_mov_path = "input_mov/00433_2.wmv"
 
 import subprocess
 logs = subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y"])
@@ -14,8 +14,8 @@ import faster
 # パラメータの設定 単位は__秒
 padding_time = 0.2 #ブツ切れにならないように、無音の幅を作る
 thres = 0.05 # 音圧の閾値
-min_silence_duration = 0.5 # 音のある最短感覚
-min_keep_duration = 0.3 # ノイズのカット時間
+min_silence_duration = 2 # 音のある最短感覚
+min_keep_duration = 0.7 # ノイズのカット時間
 baisoku = 4 # カット部分を何倍速にするか #baisoku = 0 で、倍速処理を行わず、無音部分はカットにする。
 
 
@@ -34,8 +34,9 @@ fig.savefig("_tmp.png")
 amp = np.abs(data)
 b = amp > thres
 
-
+print("音声の波形データを分析しました。スライスを始めます。")
 # 閾値をもとに、スライスをする。
+
 silences = []
 prev = 0
 entered = 0
@@ -92,12 +93,14 @@ for i, block in enumerate(cut_blocks):
 
 all_blocks = keep_blocks
 
+print("残す部分を決めました。")
+
+
+""" # 出力範囲をグラフで吐く(長い動画だとクラッシュします。)
 _tmp = []
 _tmp  = [0] * (len(data))
 
 fig = plt.figure(figsize=(18, 6))
-
-print("残す部分を決めました。")
 
 for st in all_blocks:
   print(str(st["from"]) + ":" +str(st["to"]))
@@ -107,7 +110,9 @@ for st in all_blocks:
 
 plt.plot(t, amp)
 
-fig.savefig("_tmp2.png")
+fig.savefig("_tmp2.png") """
+
+
 
 # time = 0　が、keepかcutか判断する
 if all_blocks[0]["from"] == 0:
