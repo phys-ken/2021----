@@ -1,4 +1,4 @@
-input_mov_path = "input_mov/00433_2.wmv"
+input_mov_path = ""
 
 import subprocess
 logs = subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y"])
