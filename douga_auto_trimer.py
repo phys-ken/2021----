@@ -96,21 +96,17 @@ all_blocks = keep_blocks
 print("残す部分を決めました。")
 
 
-""" # 出力範囲をグラフで吐く(長い動画だとクラッシュします。)
-_tmp = []
-_tmp  = [0] * (len(data))
-
+# 出力範囲をグラフで吐く
 fig = plt.figure(figsize=(18, 6))
+ax = fig.add_subplot(111)
+plt.plot(t, amp)
 
 for st in all_blocks:
   print(str(st["from"]) + ":" +str(st["to"]))
-  for i in range(st["from"] , st["to"] ):
-    _tmp[i] = 1
-  plt.plot(t , _tmp)
+  ax.axvspan(st["from"]/samplerate, st["to"] / samplerate, color = "coral")
 
-plt.plot(t, amp)
 
-fig.savefig("_tmp2.png") """
+fig.savefig("_tmp2.png") 
 
 
 
