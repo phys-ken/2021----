@@ -16,6 +16,9 @@ padding_time = 0.2 #ブツ切れにならないように、無音の幅を作る
 thres = 0.05 # 音圧の閾値
 min_silence_duration = 0.5 # 音のある最短感覚
 min_keep_duration = 0.3 # ノイズのカット時間
+baisoku = 4 # カット部分を何倍速にするか #baisoku = 0 で、倍速処理を行わず、無音部分はカットにする。
+
+
 
 print("無音カットの処理を始めます。")
 src_file = os.path.join("./", "_tmp.wav")
@@ -148,6 +151,6 @@ for f in os.listdir(out_dir):
   if "cut" in f:
     input_filepath = os.path.join(out_dir,f)
     print(input_filepath)
-    faster.mov_faster(input_filepath,baisoku = 4)
+    faster.mov_faster(input_filepath,baisoku = baisoku)
 
 print("作業が終了しました")
