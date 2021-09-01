@@ -1,4 +1,9 @@
-input_mov_path = "input_mov/00433_2.wmv"
+import sys
+
+args = sys.argv
+
+
+input_mov_path = args[1]
 
 import subprocess
 logs = subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y"])
@@ -10,13 +15,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 import faster
+import datetime
 
 # パラメータの設定 単位は__秒
 padding_time = 0.2 #ブツ切れにならないように、無音の幅を作る
 thres = 0.05 # 音圧の閾値
 min_silence_duration = 2 # 音のある最短感覚
 min_keep_duration = 0.7 # ノイズのカット時間
-baisoku = 4 # カット部分を何倍速にするか #baisoku = 0 で、倍速処理を行わず、無音部分はカットにする。
+baisoku = 8 # カット部分を何倍速にするか #baisoku = 0 で、倍速処理を行わず、無音部分はカットにする。
 
 
 
@@ -123,7 +129,10 @@ else:
 
 
 # フォルダ作成
-out_dir = os.path.join("./", "audio-cut-exp", "{}".format(int(time.time())))
+now = datetime.datetime.now()
+current_time = now.strftime("%Y-%m-%d-%H-%M")
+filename = os.path.basename(input_mov_path)
+out_dir = os.path.join("./", "auto_trimed", current_time + "_" + filename )
 os.makedirs(out_dir,exist_ok = True)
 
 
