@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import sys
 
 args = sys.argv
 
 
 input_mov_path = args[1]
+=======
+input_mov_path = ""
+>>>>>>> efc4de7725356d09dbc91379d01fcbff87f8764a
 
 import subprocess
 logs = subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y"])
