@@ -24,4 +24,8 @@ baisoku = 8 # カット部分を何倍速にするか #baisoku = 0 で、倍速�
 ## 環境
 * python 3以上
 * `pip install soundfile`
-* ffmpeg (ソフト)
+* ffmpegをインストールしておく必要がある。
+
+## 参考にしたサイト
+* [【ffmpeg】動画・音声を連結する concat の使い方 其の3](https://looooooooop.blog.fc2.com/blog-entry-1235.html)
+* [ffmpegで変換の際に大量に出る標準出力をログレベル指定ですっきりする](https://yatta47.hateblo.jp/entry/2015/03/03/231204)

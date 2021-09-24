@@ -5,7 +5,9 @@ args = sys.argv
 input_mov_path = args[1]
 
 import subprocess
+print("動画を読み込んでいます...")
 subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y" , "-loglevel" , "quiet"] , stdout=subprocess.DEVNULL)
+print("読み込み完了、分析をはじめます。")
 
 import soundfile as sf
 import os
@@ -13,6 +15,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 import faster
+import merger
 import datetime
 from tqdm import tqdm
 
@@ -23,23 +26,21 @@ min_silence_duration = 2 # 音のある最短感覚
 min_keep_duration = 0.7 # ノイズのカット時間
 baisoku = 8 # カット部分を何倍速にするか #baisoku = 0 で、倍速処理を行わず、無音部分はカットにする。
 
-
-
-print("無音カットの処理を始めます。")
+#音源の分析
 src_file = os.path.join("./", "_tmp.wav")
-
 data, samplerate = sf.read(src_file)
 t = np.arange(0, len(data))/samplerate
 fig = plt.figure(figsize=(18, 6))
 plt.plot(t, data)
-print("音源の読み込みに成功しました。分析します...")
+
 fig.savefig("_tmp.png")
 
 # 閾値より大きいのがb
 amp = np.abs(data)
 b = amp > thres
 
-print("音声の波形データを分析しました。スライスを始めます。")
+print("音声の波形データを分析しました。音量をもとに、動画の分割を始めます。")
+
 # 閾値をもとに、スライスをする。
 
 silences = []
@@ -85,6 +86,7 @@ while 1:
 
 # 残すところの配列に変える
 
+print("音が大きいところと小さいところに分けます。")
 keep_blocks = []
 for i, block in enumerate(tqdm(cut_blocks)):
   if i == 0 and block["from"] > 0:
@@ -129,7 +131,7 @@ else:
 now = datetime.datetime.now()
 current_time = now.strftime("%Y-%m-%d-%H-%M")
 filename = os.path.basename(input_mov_path)
-out_dir = os.path.join("./", "auto_trimed", current_time + "_" + filename )
+out_dir = os.path.join("./", "auto_trimed", current_time + "_" + filename.replace(".","_") )
 os.makedirs(out_dir,exist_ok = True)
 
 
@@ -160,4 +162,9 @@ for f in tqdm(os.listdir(out_dir)):
     input_filepath = os.path.join(out_dir,f)
     faster.mov_faster(input_filepath,baisoku = baisoku)
 
-print("作業が終了しました")
+
+print("動画の分割が終了しました。最後に動画を結合します。")
+
+merger.mov_merger(out_dir)
+
+print("すべての作業が終了しました。保存先：" + out_dir)
