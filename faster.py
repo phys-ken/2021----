@@ -8,6 +8,6 @@ def mov_faster(input_file , baisoku = 4):
     output_file = os.path.join( dirname ,  basename_without_ext + "_fast" + ext)
 
     if not baisoku == 0:
-        subprocess.run([ "ffmpeg", "-i", input_file, "-vf" ,  "setpts=PTS/" + str(baisoku) , "-af" , "aresample=48000,asetrate=48000*" + str(baisoku) ,  "-ar", "48000", output_file  , "-y"] )
+        subprocess.run([ "ffmpeg", "-i", input_file, "-vf" ,  "setpts=PTS/" + str(baisoku) , "-af" , "aresample=48000,asetrate=48000*" + str(baisoku) ,  "-ar", "48000", output_file  , "-y" , "-loglevel" , "quiet"] , stdout=subprocess.DEVNULL)
 
     os.remove(input_file)

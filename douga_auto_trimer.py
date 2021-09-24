@@ -5,8 +5,7 @@ args = sys.argv
 input_mov_path = args[1]
 
 import subprocess
-logs = subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y"])
-print(logs)
+subprocess.run(["ffmpeg", "-i", input_mov_path ,  "-ac" , "1" , "-ar" ,  "44100", "-acodec",  "pcm_s16le", "_tmp.wav" ,  "-y" , "-loglevel" , "quiet"] , stdout=subprocess.DEVNULL)
 
 import soundfile as sf
 import os
@@ -15,6 +14,7 @@ from matplotlib import pyplot as plt
 import time
 import faster
 import datetime
+from tqdm import tqdm
 
 # パラメータの設定 単位は__秒
 padding_time = 0.2 #ブツ切れにならないように、無音の幅を作る
@@ -45,7 +45,7 @@ print("音声の波形データを分析しました。スライスを始めま�
 silences = []
 prev = 0
 entered = 0
-for i, v in enumerate(b):
+for i, v in enumerate(tqdm(b)):
   if prev == 1 and v == 0: # enter silence
     entered = i
   if prev == 0 and v == 1: # exit silence
@@ -82,12 +82,11 @@ while 1:
   cut_blocks.append(block)
   blocks = list(filter(lambda b: b not in next_blocks, blocks))
     
-print(cut_blocks)
 
 # 残すところの配列に変える
 
 keep_blocks = []
-for i, block in enumerate(cut_blocks):
+for i, block in enumerate(tqdm(cut_blocks)):
   if i == 0 and block["from"] > 0:
     keep_blocks.append({"from": 0, "to": block["from"], "suffix": "keep"})
   if i > 0:
@@ -107,7 +106,6 @@ ax = fig.add_subplot(111)
 plt.plot(t, amp)
 
 for st in all_blocks:
-  print(str(st["from"]) + ":" +str(st["to"]))
   ax.axvspan(st["from"]/samplerate, st["to"] / samplerate, color = "coral")
 
 
@@ -136,30 +134,30 @@ os.makedirs(out_dir,exist_ok = True)
 
 
 # 残す部分を出力
-for i, block in enumerate(all_blocks):
+print("残す部分を切り取っています...")
+for i, block in enumerate(tqdm(all_blocks)):
   fr = max(block["from"] / samplerate - padding_time, 0)
   to = min(block["to"] / samplerate + padding_time, len(data) / samplerate)
   duration = to - fr
   out_path = os.path.join(out_dir, "{}_{}_{}.mp4".format(str(i).zfill(4), keep_top,block["suffix"]))
-  print(out_path + " --- " + str(block["from"]) + ":" + str(block["to"]))
-  subprocess.run(["ffmpeg", "-ss", str(fr) ,"-i" ,input_mov_path , "-t" , str(duration) , out_path])
+  subprocess.run(["ffmpeg", "-ss", str(fr) ,"-i" ,input_mov_path , "-t" , str(duration) , out_path , "-loglevel" , "quiet"], stdout=subprocess.DEVNULL)
 
 
 # 斬る部分を出力
-for i, block in enumerate(cut_blocks):
+print("音が小さい部分を切り取っています...")
+for i, block in enumerate(tqdm(cut_blocks)):
   fr = max(block["from"] / samplerate + padding_time, 0)
   to = min(block["to"] / samplerate - padding_time, len(data) / samplerate)
   duration = to - fr
   out_path = os.path.join(out_dir, "{}_{}_{}.mp4".format(str(i).zfill(4), cut_top,block["suffix"]))
-  print(out_path + " --- " + str(block["from"]) + ":" + str(block["to"]))
-  subprocess.run(["ffmpeg", "-ss", str(fr) ,"-i" ,input_mov_path , "-t" , str(duration) , out_path])
+  subprocess.run(["ffmpeg", "-ss", str(fr) ,"-i" ,input_mov_path , "-t" , str(duration) , out_path , "-loglevel" , "quiet"], stdout=subprocess.DEVNULL)
 
 
 # cut部分の
-for f in os.listdir(out_dir):
+print("音が小さい部分を圧縮しています...")
+for f in tqdm(os.listdir(out_dir)):
   if "cut" in f:
     input_filepath = os.path.join(out_dir,f)
-    print(input_filepath)
     faster.mov_faster(input_filepath,baisoku = baisoku)
 
 print("作業が終了しました")
