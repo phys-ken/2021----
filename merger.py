@@ -9,7 +9,11 @@ def mov_merger(target_dir):
     ## ファイル名の一覧は、txtから見た相対パス
     ## txtのパスは、スラッシュのみ利用可。windowsのときのバックスラッシュは、読み込みすらされない
     txt = open(input_text_path, 'w' , encoding='UTF-8')
-    for f in os.listdir(target_dir):
+
+    # 環境によっては、フォルダの配列が順番通りに読み込まれないので、一応ソートをかましておこう。
+    tmp_path_list = os.listdir(target_dir)
+    tmp_path_list.sort()
+    for f in tmp_path_list:
       txt.write("file " + f.replace(os.sep,'/') + '\n')
 
     txt.close()
